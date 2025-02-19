@@ -16,14 +16,32 @@ import Link from "next/link";
 import React from "react";
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 import { registrationSchema } from "./registerValidation";
+import { registerUser } from "@/services/AuthService";
+import { toast } from "sonner";
 
 const RegisterForm = () => {
   const form = useForm({
     resolver: zodResolver(registrationSchema),
   });
 
-  const onSubmit: SubmitHandler<FieldValues> = (data) => {
-    console.log("regiser data", data);
+  const {
+    formState: { isSubmitting },
+  } = form;
+
+  const password = form.watch("password");
+  const passwordConfirm = form.watch("passwordConfirm");
+
+  const onSubmit: SubmitHandler<FieldValues> = async (data) => {
+    try {
+      const res = await registerUser(data);
+      if (res?.success) {
+        toast.success(res?.message);
+      } else {
+        toast.error(res?.message);
+      }
+    } catch (error: any) {
+      console.log(error);
+    }
   };
 
   return (
@@ -88,22 +106,21 @@ const RegisterForm = () => {
                   <Input type="password" {...field} value={field.value || ""} />
                 </FormControl>
 
-                {/* {passwordConfirm && password !== passwordConfirm ? (
+                {passwordConfirm && password !== passwordConfirm ? (
                   <FormMessage> Password does not match </FormMessage>
                 ) : (
                   <FormMessage />
-                )} */}
+                )}
               </FormItem>
             )}
           />
 
           <Button
-            //   disabled={passwordConfirm && password !== passwordConfirm}
+            disabled={!!passwordConfirm && password !== passwordConfirm}
             type="submit"
             className="mt-5 w-full"
           >
-            {/* {isSubmitting ? "Registering...." : "Register"} */}
-            submit
+            {isSubmitting ? "Registering...." : "Register"}
           </Button>
         </form>
       </Form>
