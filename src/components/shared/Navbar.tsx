@@ -15,13 +15,22 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { logout } from "@/services/AuthService";
 import { useUser } from "@/context/UserContext";
+import { usePathname, useRouter } from "next/navigation";
+import { protectedRoutes } from "@/contants";
 
 const Navbar = () => {
   const { user, setIsLoading } = useUser();
+  const pathname = usePathname();
+  const routes = useRouter();
 
   const handleLogout = () => {
     logout();
     setIsLoading(true);
+
+    if (protectedRoutes.some((route) => pathname.match(route))) {
+      routes.push("/");
+    }
+    
   };
 
   return (
