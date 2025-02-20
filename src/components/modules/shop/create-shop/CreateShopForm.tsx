@@ -16,27 +16,55 @@ import Logo from "@/app/assets/svgs/Logo";
 import NMImageUploader from "@/components/ui/core/NMImageUploader";
 import { useState } from "react";
 import ImagePreviewer from "@/components/ui/core/NMImageUploader/ImagePreviewer";
+import { createShop } from "@/services/Shop";
+import { toast } from "sonner";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { createShopSchema } from "./createShopValidation";
 
 const CreateShopForm = () => {
   const [imageFiles, setImageFiles] = useState<File[] | []>([]);
   const [imagePreview, setImagePreview] = useState<string[] | []>([]);
 
-  const form = useForm();
-
+  const form = useForm({
+    resolver: zodResolver(createShopSchema),
+  });
   const {
     formState: { isSubmitting },
   } = form;
 
   const onSubmit: SubmitHandler<FieldValues> = async (data) => {
+    const serviceOffered = data?.servicesOffered
+      .split(",")
+      .map((service: string) => service.trim())
+      .filter((service: string) => service !== "");
+
+    const modifiedData = {
+      ...data,
+      servicesOffered: serviceOffered,
+      establishedYear: Number(data?.establishedYear),
+    };
+
     try {
-      console.log(data);
+      const formData = new FormData();
+      formData.append("data", JSON.stringify(modifiedData));
+      formData.append("logo", imageFiles[0] as File);
+
+      const res = await createShop(formData);
+
+      console.log(res);
+
+      if (res.success) {
+        toast.success(res.message);
+      }
+
+      console.log(res);
     } catch (error) {
       console.log(error);
     }
   };
 
   return (
-    <div className="border-2 border-gray-300 rounded-xl flex-grow max-w-2xl p-5 my-5">
+    <div className="border-2 my-8 border-gray-300 rounded-xl flex-grow max-w-2xl p-5 ">
       <div className="flex items-center space-x-4 mb-5">
         <Logo />
         <div>

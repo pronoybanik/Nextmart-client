@@ -3,7 +3,7 @@ import React from "react";
 
 const CreateShopPage = () => {
   return (
-    <div className="w-screen h-screen flex items-center justify-center">
+    <div className="flex items-center justify-center">
       <CreateShopForm />
     </div>
   );
