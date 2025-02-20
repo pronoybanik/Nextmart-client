@@ -1,5 +1,5 @@
 "use client";
-// import ReCAPTCHA from "react-google-recaptcha";
+import ReCAPTCHA from "react-google-recaptcha";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -16,35 +16,39 @@ import Logo from "@/app/assets/svgs/Logo";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { loginSchema } from "./loginValidation";
-import { loginUser } from "@/services/AuthService";
+import { loginUser, reCaptchaTokenVerification } from "@/services/AuthService";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function LoginForm() {
+  const routes = useRouter();
   const form = useForm({
     resolver: zodResolver(loginSchema),
   });
 
-  //   const [reCaptchaStatus, setReCaptchaStatus] = useState(false);
+  const [reCaptchaStatus, setReCaptchaStatus] = useState(false);
 
   const {
     formState: { isSubmitting },
   } = form;
 
-  //   const handleReCaptcha = async (value: string | null) => {
-  //     try {
-  //       const res = await reCaptchaTokenVerification(value!);
-  //       if (res?.success) {
-  //         setReCaptchaStatus(true);
-  //       }
-  //     } catch (err: any) {
-  //       console.error(err);
-  //     }
-  //   };
+  const handleReCaptcha = async (value: string | null) => {
+    try {
+      const res = await reCaptchaTokenVerification(value!);
+      if (res?.success) {
+        setReCaptchaStatus(true);
+      }
+    } catch (err: any) {
+      console.log(err);
+    }
+  };
 
   const onSubmit: SubmitHandler<FieldValues> = async (data) => {
     try {
       const res = await loginUser(data);
       if (res?.success) {
         toast.success(res?.message);
+        routes.push("/");
       } else {
         toast.error(res?.message);
       }
@@ -91,15 +95,19 @@ export default function LoginForm() {
             )}
           />
 
-          {/* <div className="flex mt-3 w-full">
+          <div className="flex mt-3 w-full">
             <ReCAPTCHA
-              sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_CLIENT_KEY}
-            //   onChange={handleReCaptcha}
+              sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_CLIENT_KEY || ""}
+              onChange={handleReCaptcha}
               className="mx-auto"
             />
-          </div> */}
+          </div>
 
-          <Button type="submit" className="mt-5 w-full">
+          <Button
+            disabled={reCaptchaStatus ? false : true}
+            type="submit"
+            className="mt-5 w-full"
+          >
             {isSubmitting ? "Logging...." : "Login"}
           </Button>
         </form>
