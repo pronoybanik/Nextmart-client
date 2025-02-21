@@ -1,10 +1,12 @@
-import CreateBrandModal from "@/components/modules/shop/brand/CreateBrandModal";
+import ManageBrands from "@/components/modules/shop/brand";
+import { getAllBrands } from "@/services/Brand";
 import React from "react";
 
-const ProductBrandPage = () => {
+const ProductBrandPage = async () => {
+  const { data } = await getAllBrands();
   return (
     <div>
-      <CreateBrandModal />
+      <ManageBrands brands={data} />
     </div>
   );
 };
