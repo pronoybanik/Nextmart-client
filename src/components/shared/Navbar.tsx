@@ -30,7 +30,6 @@ const Navbar = () => {
     if (protectedRoutes.some((route) => pathname.match(route))) {
       routes.push("/");
     }
-    
   };
 
   return (
@@ -72,7 +71,9 @@ const Navbar = () => {
                   <DropdownMenuLabel>My Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem>Profile</DropdownMenuItem>
-                  <DropdownMenuItem>Dashboard</DropdownMenuItem>
+                  <Link href='/user/dashboard'>
+                    <DropdownMenuItem>Dashboard</DropdownMenuItem>
+                  </Link>
                   <DropdownMenuItem>My Shop</DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
