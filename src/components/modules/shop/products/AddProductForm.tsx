@@ -21,7 +21,7 @@ import { useEffect, useState } from "react";
 import NMImageUploader from "@/components/ui/core/NMImageUploader";
 import ImagePreviewer from "@/components/ui/core/NMImageUploader/ImagePreviewer";
 import { Plus } from "lucide-react";
-// import Logo from "@/assets/svgs/Logo";
+import Logo from "@/assets/svgs/Logo";
 
 import {
   Select,
@@ -33,18 +33,11 @@ import {
 import { IBrand, ICategory } from "@/types";
 import { getAllCategories } from "@/services/Category";
 import { getAllBrands } from "@/services/Brand";
-// import { addProduct } from "@/services/Product";
-import { useRouter } from "next/navigation";
+import { addProduct } from "@/services/product";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
-export default function AddProductsForm() {
-  const [imageFiles, setImageFiles] = useState<File[] | []>([]);
-  const [imagePreview, setImagePreview] = useState<string[] | []>([]);
-  const [categories, setCategories] = useState<ICategory[] | []>([]);
-  const [brands, setBrands] = useState<IBrand[] | []>([]);
-
-  const router = useRouter();
-
+const AddProductsForm = () => {
   const form = useForm({
     defaultValues: {
       name: "",
@@ -64,6 +57,14 @@ export default function AddProductsForm() {
     formState: { isSubmitting },
   } = form;
 
+  const router = useRouter();
+
+  const [imageFiles, setImageFiles] = useState<File[] | []>([]);
+  const [imagePreview, setImagePreview] = useState<string[] | []>([]);
+  const [categories, setCategories] = useState<ICategory[] | []>([]);
+  const [brands, setBrands] = useState<IBrand[] | []>([]);
+
+  // Dynamic Fields
   const { append: appendColor, fields: colorFields } = useFieldArray({
     control: form.control,
     name: "availableColors",
@@ -91,28 +92,24 @@ export default function AddProductsForm() {
     appendSpec({ key: "", value: "" });
   };
 
-  // console.log(specFields);
-
   useEffect(() => {
     const fetchData = async () => {
       const [categoriesData, brandsData] = await Promise.all([
         getAllCategories(),
         getAllBrands(),
       ]);
-
-      setCategories(categoriesData?.data);
-      setBrands(brandsData?.data);
+      setCategories(categoriesData.data);
+      setBrands(brandsData.data);
     };
-
     fetchData();
   }, []);
 
+  // submit data
   const onSubmit: SubmitHandler<FieldValues> = async (data) => {
-    const availableColors = data.availableColors.map(
+    const availableColors = data?.availableColors.map(
       (color: { value: string }) => color.value
     );
-
-    const keyFeatures = data.keyFeatures.map(
+    const keyFeatures = data?.keyFeatures.map(
       (feature: { value: string }) => feature.value
     );
 
@@ -121,8 +118,6 @@ export default function AddProductsForm() {
       (item: { key: string; value: string }) =>
         (specification[item.key] = item.value)
     );
-
-    // console.log({ availableColors, keyFeatures, specification });
 
     const modifiedData = {
       ...data,
@@ -134,34 +129,32 @@ export default function AddProductsForm() {
       weight: parseFloat(data.stock),
     };
 
-    console.log(modifiedData);
+    const formData = new FormData();
+    formData.append("data", JSON.stringify(modifiedData));
 
-    // const formData = new FormData();
-    // formData.append("data", JSON.stringify(modifiedData));
+    for (const file of imageFiles) {
+      formData.append("images", file);
+    }
+    try {
+      const res = await addProduct(formData);
 
-    // for (const file of imageFiles) {
-    //   formData.append("images", file);
-    // }
-    // try {
-    //   const res = await addProduct(formData);
-
-    //   if (res.success) {
-    //     toast.success(res.message);
-    //     router.push("/user/shop/products");
-    //   } else {
-    //     toast.error(res.message);
-    //   }
-    // } catch (err: any) {
-    //   console.error(err);
-    // }
+      if (res.success) {
+        toast.success(res.message);
+        router.push("/user/shop/products");
+      } else {
+        toast.error(res.message);
+      }
+    } catch (err: any) {
+      console.error(err);
+    }
   };
 
   return (
     <div className="border-2 border-gray-300 rounded-xl flex-grow max-w-2xl p-5 ">
       <div className="flex items-center space-x-4 mb-5 ">
-        {/* <Logo /> */}
+        <Logo />
 
-        <h1 className="text-xl font-bold">Add Product</h1>
+        <h1 className="text-xl font-bold">Add Products</h1>
       </div>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -197,6 +190,7 @@ export default function AddProductsForm() {
               )}
             />
 
+            {/* Category section */}
             <FormField
               control={form.control}
               name="category"
@@ -225,6 +219,8 @@ export default function AddProductsForm() {
                 </FormItem>
               )}
             />
+
+            {/* Brand section */}
             <FormField
               control={form.control}
               name="brand"
@@ -253,6 +249,7 @@ export default function AddProductsForm() {
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name="stock"
@@ -325,9 +322,9 @@ export default function AddProductsForm() {
             <div className="flex justify-between items-center border-t border-b py-3 my-5">
               <p className="text-primary font-bold text-xl">Available Colors</p>
               <Button
+                onClick={addColor}
                 variant="outline"
                 className="size-10"
-                onClick={addColor}
                 type="button"
               >
                 <Plus className="text-primary" />
@@ -342,7 +339,7 @@ export default function AddProductsForm() {
                     name={`availableColors.${index}.value`}
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Color {index + 1}</FormLabel>
+                        <FormLabel>Color {index + 1} </FormLabel>
                         <FormControl>
                           <Input {...field} value={field.value || ""} />
                         </FormControl>
@@ -444,4 +441,6 @@ export default function AddProductsForm() {
       </Form>
     </div>
   );
-}
+};
+
+export default AddProductsForm;
