@@ -9,11 +9,11 @@ import { Button } from "@/components/ui/button";
 import { IProduct } from "@/types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useState } from "react";
+import DiscountModal from "./DiscountModal";
 
 const ManageProducts = ({ products }: { products: IProduct[] }) => {
   const router = useRouter();
   const [selectedIds, setSelectedIds] = useState<string[] | []>([]);
-
 
   const handleView = (product: IProduct) => {
     console.log("Viewing product:", product);
@@ -148,6 +148,11 @@ const ManageProducts = ({ products }: { products: IProduct[] }) => {
           >
             Add Product <Plus />
           </Button>
+
+          <DiscountModal
+            setSelectedIds={setSelectedIds}
+            selectedIds={selectedIds}
+          />
         </div>
       </div>
       <NMTable columns={columns} data={products || []} />
