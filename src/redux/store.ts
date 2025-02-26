@@ -1,14 +1,36 @@
 import { configureStore } from '@reduxjs/toolkit'
-import cartSlice from '@/redux/features/cartSlice'
+import cartReducer from '@/redux/features/cartSlice'
+import {
+    persistReducer,
+    FLUSH,
+    REHYDRATE,
+    PAUSE,
+    PERSIST,
+    PURGE,
+    REGISTER,
+} from "redux-persist";
+import storage from './storage';
 
+const persistOptions = {
+    key: "cart",
+    storage
+}
+
+const persistedCart = persistReducer(persistOptions, cartReducer)
 
 export const makeStore = () => {
     return configureStore({
         reducer: {
-            cart: cartSlice
+            cart: persistedCart
         },
-    })
-}
+        middleware: (getDefaultMiddlewares: any) =>
+            getDefaultMiddlewares({
+                serializableCheck: {
+                    ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+                },
+            })
+    });
+};
 
 // Infer the type of makeStore
 export type AppStore = ReturnType<typeof makeStore>
