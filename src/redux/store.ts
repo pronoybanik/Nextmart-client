@@ -1,9 +1,13 @@
 import { configureStore } from '@reduxjs/toolkit'
+import cartSlice from '@/redux/features/cartSlice'
+
 
 export const makeStore = () => {
-  return configureStore({
-    reducer: {},
-  })
+    return configureStore({
+        reducer: {
+            cart: cartSlice
+        },
+    })
 }
 
 // Infer the type of makeStore
