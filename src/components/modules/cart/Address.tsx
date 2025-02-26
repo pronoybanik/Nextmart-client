@@ -9,18 +9,13 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { cities } from "@/constants/cities";
-import {
-  citySelector,
-  shippingAddressSelector,
-  updateCity,
-  updateShippingAddress,
-} from "@/redux/features/cartSlice";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { updateCity, updateShippingAddress } from "@/redux/features/cartSlice";
+import { useAppDispatch } from "@/redux/hooks";
 
 export default function Address() {
   const dispatch = useAppDispatch();
-  const selectedCity = useAppSelector(citySelector);
-  const shippingAddress = useAppSelector(shippingAddressSelector);
+  // const selectedCity = useAppSelector(citySelector);
+  // const shippingAddress = useAppSelector(shippingAddressSelector);
 
   const handleCitySelect = (city: string) => {
     dispatch(updateCity(city));
@@ -28,8 +23,6 @@ export default function Address() {
 
   const handleShippingAddress = (address: string) => {
     dispatch(updateShippingAddress(address));
-    console.log(selectedCity);
-    console.log(shippingAddress);
   };
 
   return (
