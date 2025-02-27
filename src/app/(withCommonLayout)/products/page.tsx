@@ -7,10 +7,17 @@ import { getAllProducts } from "@/services/product";
 import { ICategory } from "@/types";
 import React from "react";
 
-const AllProductPage = async () => {
+type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
+
+const AllProductPage = async ({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) => {
+  const query = await searchParams;
   const { data: categories } = await getAllCategories();
-  const { data: products } = await getAllProducts();
-  
+  const { data: products } = await getAllProducts(undefined, undefined, query);
+
   return (
     <NMContainer>
       <ProductBanner title="All Products" path="Home-Products" />
